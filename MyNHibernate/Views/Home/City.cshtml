@@ -1,0 +1,18 @@
+﻿@model IEnumerable<MyNHibernate.Models.City>
+
+@{
+    ViewBag.Title = "City";
+}
+
+<h2>City</h2>
+@foreach(var item in Model)
+{   
+    <div>@Html.DisplayFor(modelItem => item.CityId)</div>
+    <div>@Html.DisplayFor(modelItem => item.CityName)</div>
+    foreach(var i in item.LocalVendor)
+    {
+         <div>@Html.DisplayFor(mi => i.Vendorid)</div>
+        <div>@Html.DisplayFor(mi => i.Vendorname)</div>
+    }
+    <div style="border-bottom:dotted"></div>
+}
