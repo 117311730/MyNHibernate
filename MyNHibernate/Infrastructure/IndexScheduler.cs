@@ -65,13 +65,13 @@ namespace MyNHibernate.Infrastructure
         {
             try
             {
-                Log.Debug("start index .......................................");
+                Log.Info("start index .......................................");
                 LuceneIndex.Create();
-                Log.Debug("index end .........................................");
+                Log.Info("index end .........................................");
             }
             catch (Exception ex)
             {
-                Log.Debug("start index exception:", ex);
+                Log.Error("start index exception:", ex);
             }
         }
     }
