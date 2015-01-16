@@ -62,12 +62,36 @@ namespace MyNHibernate
 
         protected void Application_Error(object sender, EventArgs e)
         {
+            var exception = Server.GetLastError();
 
+            //log error
+            LogException(exception);
         }
 
         public static ISession GetCurrentSession()
         {
             return _SessionContaioner.Session;
+        }
+
+        protected void LogException(Exception exc)
+        {
+            if (exc == null)
+                return;
+
+            //ignore 404 HTTP errors
+            var httpException = exc as HttpException;
+            if (httpException != null && httpException.GetHttpCode() == 404)
+                return;
+
+            try
+            {
+                //log
+                Log.Error(exc.Message, exc);
+            }
+            catch (Exception)
+            {
+                //don't throw new exception if occurs
+            }
         }
 
         private void RegisterRoutes()
