@@ -16,5 +16,16 @@ namespace MyNHibernate.Services
             //Session = new HttpContextSessionContainer(NHibernateUtility.GetSessionFactory()).Session;
             Session = MvcApplication.GetCurrentSession();
         }
+
+        public IEnumerable<T> GetAll<T>() where T : class
+        {
+            return Session.QueryOver<T>().List<T>();
+        }
+
+        public T GetOne<T>(int id) where T : class
+        {
+            return Session.Get<T>(id);
+        }
+
     }
 }

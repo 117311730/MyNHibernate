@@ -1,0 +1,11 @@
+﻿################################################################################
+# This .gitignore file was automatically created by Microsoft(R) Visual Studio.
+################################################################################
+
+/MyNHibernate/log
+/MyNHibernate/lucene
+/MyNHibernate/bin
+/MyNHibernate/obj
+
+/MyNHibernate/Test/MyNHibernate.Test/bin
+/MyNHibernate/Test/MyNHibernate.Test/obj

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Configuration;
 using System.Linq;
 using System.Web;
 using System.Web.Http;
@@ -9,6 +10,8 @@ using System.Web.Routing;
 using MyNHibernate.Infrastructure;
 using NHibernate;
 using NHibernate.Cfg;
+using Quartz;
+using Quartz.Impl;
 
 namespace MyNHibernate
 {
@@ -19,6 +22,13 @@ namespace MyNHibernate
     {
         private static readonly log4net.ILog Log = log4net.LogManager.GetLogger(typeof(MvcApplication));
         private static ISessionContainer _SessionContaioner;
+        private IndexScheduler Sched;
+
+        public MvcApplication()
+        {
+
+        }
+
         protected void Application_Start()
         {
             log4net.Config.XmlConfigurator.Configure();
@@ -29,12 +39,10 @@ namespace MyNHibernate
 
             _SessionContaioner = new HttpContextSessionContainer(NHibernateUtility.GetSessionFactory());
 
-            AreaRegistration.RegisterAllAreas();
+            Sched = new IndexScheduler();
+            Sched.Start();
 
-            WebApiConfig.Register(GlobalConfiguration.Configuration);
-            FilterConfig.RegisterGlobalFilters(GlobalFilters.Filters);
-            RouteConfig.RegisterRoutes(RouteTable.Routes);
-            BundleConfig.RegisterBundles(BundleTable.Bundles);
+            RegisterRoutes();
         }
 
         protected void Application_BeginRequest()
@@ -44,12 +52,33 @@ namespace MyNHibernate
 
         protected void Application_EndRequest()
         {
-            _SessionContaioner.CloseSession(); 
+            _SessionContaioner.CloseSession();
+        }
+
+        protected void Application_End()
+        {
+            Sched.Close();
+        }
+
+        protected void Application_Error(object sender, EventArgs e)
+        {
+
         }
 
         public static ISession GetCurrentSession()
         {
             return _SessionContaioner.Session;
+        }
+
+        private void RegisterRoutes()
+        {
+            AreaRegistration.RegisterAllAreas();
+
+            WebApiConfig.Register(GlobalConfiguration.Configuration);
+            FilterConfig.RegisterGlobalFilters(GlobalFilters.Filters);
+            RouteConfig.RegisterRoutes(RouteTable.Routes);
+            BundleConfig.RegisterBundles(BundleTable.Bundles);
+
         }
     }
 }

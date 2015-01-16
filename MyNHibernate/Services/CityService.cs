@@ -14,11 +14,5 @@ namespace MyNHibernate.Services
                 .Distinct();              
         }
 
-        public City GetOne(int id)
-        {
-            return Session.Get<City>(id);
-        }
-
-
     }
 }
