@@ -23,6 +23,11 @@ namespace MyNHibernate.Infrastructure
             return _SessionFactory;
         }
 
+        public static Configuration GetNHConfiguration()
+        {
+            return _Configure;
+        }
+
         private void Configure()
         {
             _Configure = new Configuration().Configure();

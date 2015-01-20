@@ -12,6 +12,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".nuget", ".nuget", "{BDF354
 		.nuget\NuGet.targets = .nuget\NuGet.targets
 	EndProjectSection
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NHibernate.Indexer", "NHibernate.Indexer\NHibernate.Indexer.csproj", "{134C7435-A930-4B47-B6C8-6A50689BB01D}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -26,6 +28,10 @@ Global
 		{E1110FAE-C32E-4E3B-BC01-BD4AD670D868}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{E1110FAE-C32E-4E3B-BC01-BD4AD670D868}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{E1110FAE-C32E-4E3B-BC01-BD4AD670D868}.Release|Any CPU.Build.0 = Release|Any CPU
+		{134C7435-A930-4B47-B6C8-6A50689BB01D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{134C7435-A930-4B47-B6C8-6A50689BB01D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{134C7435-A930-4B47-B6C8-6A50689BB01D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{134C7435-A930-4B47-B6C8-6A50689BB01D}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

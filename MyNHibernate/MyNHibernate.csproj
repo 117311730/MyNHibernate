@@ -197,6 +197,7 @@
     <Compile Include="Services\BaseRepository.cs" />
     <Compile Include="Services\VendorProductsService.cs" />
     <Compile Include="Util\SystemInfo.cs" />
+    <Compile Include="ViewModels\SearchResult.cs" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="Content\themes\base\images\ui-bg_flat_0_aaaaaa_40x100.png" />
@@ -311,6 +312,12 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\NHibernate.Indexer\NHibernate.Indexer.csproj">
+      <Project>{134c7435-a930-4b47-b6c8-6a50689bb01d}</Project>
+      <Name>NHibernate.Indexer</Name>
+    </ProjectReference>
   </ItemGroup>
   <PropertyGroup>
     <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">10.0</VisualStudioVersion>

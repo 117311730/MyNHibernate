@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Configuration;
+using MyNHibernate.Util;
+using NHibernate.Indexer;
 using Quartz;
 using Quartz.Impl;
 
@@ -66,12 +68,25 @@ namespace MyNHibernate.Infrastructure
             try
             {
                 Log.Info("start index .......................................");
-                LuceneIndex.Create();
+                Index();
                 Log.Info("index end .........................................");
             }
             catch (Exception ex)
             {
                 Log.Error("start index exception:", ex);
+            }
+        }
+
+        private void Index()
+        {
+            var cfg = NHibernateUtility.GetNHConfiguration();
+            var sessionFactory = NHibernateUtility.GetSessionFactory();
+            //string indexPath = Context.Server.MapPath("~/IndexData");
+            string indexPath = SystemInfo.ConvertToFullPath(ConfigurationManager.AppSettings["pathIndex"]);
+            using (var session = sessionFactory.OpenSession())
+            {
+                Indexer.CreateIndex(cfg, session, indexPath)
+                       .Build();
             }
         }
     }
