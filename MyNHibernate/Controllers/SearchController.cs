@@ -28,11 +28,12 @@ namespace MyNHibernate.Controllers
             return Json(Search<VendorProducts>(kw, 1, 20), JsonRequestBehavior.AllowGet);
         }
 
-        public static IEnumerable<T> Search<T>(string keyWord, int startRowIndex, int pageSize) where T : new()
+        public static IEnumerable<int> Search<T>(string keyWord, int startRowIndex, int pageSize) where T : new()
         {
+            Type myType = typeof(T);
             var analyzer = new StandardAnalyzer(Lucene.Net.Util.Version.LUCENE_30);
             string indexPath = SystemInfo.ConvertToFullPath(ConfigurationManager.AppSettings["pathIndex"]);
-            indexPath = Path.Combine(indexPath, typeof(T).Name);
+            indexPath = Path.Combine(indexPath, myType.Name);
             FSDirectory directory = FSDirectory.Open(new DirectoryInfo(indexPath), new NativeFSLockFactory());
             IndexSearcher searcher = new IndexSearcher(directory);
             MultiFieldQueryParser parser = new MultiFieldQueryParser(Lucene.Net.Util.Version.LUCENE_30, new string[] { "Name", "Tags", "Description" }, analyzer);
@@ -41,19 +42,12 @@ namespace MyNHibernate.Controllers
             searcher.Search(query, collector);
             // int totalCount = collector.GetTotalHits();//返回总条数
             ScoreDoc[] docs = collector.TopDocs(startRowIndex, pageSize).ScoreDocs;//分页,下标应该从0开始吧，0是第一条记录
-            List<T> list = new List<T>();
+            List<int> list = new List<int>();
             for (int i = 0; i < docs.Length; i++)
             {
                 int dosId = docs[i].Doc;
                 Document doc = searcher.Doc(dosId);
-                T t = new T();
-                Type myType = t.GetType();
-                foreach (var item in doc.GetFields())
-                {
-                    PropertyInfo pinfo = myType.GetProperty(item.Name);
-                    pinfo.SetValue(t,item.StringValue,null);
-                }
-                list.Add(t);
+                list.Add(Convert.ToInt32(doc.Get("ProductId")));
             }
             searcher.Dispose();
             return list;

@@ -7,6 +7,7 @@ using NHibernate.Util;
 
 namespace NHibernate.Indexer.Engine
 {
+    using Lucene.Net.Index;
     using NHibernate.Indexer.Attributes;
     using Type = System.Type;
 
@@ -37,9 +38,9 @@ namespace NHibernate.Indexer.Engine
             get { return mappedSubclasses; }
         }
 
-        public string IdentifierName
+        public DocumentIdMapping DocumentId
         {
-            get { return rootClassMapping.DocumentId.PropertyName; }
+            get { return rootClassMapping.DocumentId; }
         }
 
         public string GetIndexName
@@ -51,20 +52,19 @@ namespace NHibernate.Indexer.Engine
         {
             get { return rootClassMapping.MappedClass; }
         }
+
         #endregion
 
         public Document GetDocument(object instance)
         {
             Document doc = new Document();
-            var idMapping = rootClassMapping.DocumentId;
-            doc.Add(new Field(idMapping.PropertyName, idMapping.Getter.Get(instance).ToString(), Field.Store.YES, Field.Index.NOT_ANALYZED));
             BuildDocumentFields(instance, doc, rootClassMapping, string.Empty);
             return doc;
         }
 
-        public String GetIdKeywordName()
+        public Term GetTerm(object instance)
         {
-            return rootClassMapping.DocumentId.Name;
+            return new Term(DocumentId.Name, DocumentId.Getter.Get(instance).ToString());
         }
 
         public static System.Type GetDocumentClass(Document document, string fieldName)
@@ -87,10 +87,17 @@ namespace NHibernate.Indexer.Engine
                 return;
             }
 
+            BuildDocumentId(instance, doc);
+
             foreach (var field in classMapping.Fields)
             {
                 BuildDocumentField(field, instance, doc, prefix);
             }
+        }
+
+        private void BuildDocumentId(Object instance, Document doc)
+        {
+            doc.Add(new Field(DocumentId.Name, DocumentId.Getter.Get(instance).ToString(), Field.Store.YES, Field.Index.NOT_ANALYZED));
         }
 
         private void BuildDocumentField(FieldMapping fieldMapping, object unproxiedInstance, Document doc, string prefix)
@@ -101,6 +108,8 @@ namespace NHibernate.Indexer.Engine
             try
             {
                 field = new Field(fieldName.ToString(), value.ToString(), GetStore(fieldMapping.Store), GetIndex(fieldMapping.Index));
+                if (fieldMapping.Boost != null)
+                    field.Boost = fieldMapping.Boost.Value;
                 doc.Add(field);
             }
             catch (Exception e)
@@ -154,11 +163,11 @@ namespace NHibernate.Indexer.Engine
                     throw new AssertionFailure("Unexpected Store: " + store);
             }
         }
-     
+
         public string LuceneTypeName(System.Type type)
         {
             return type.FullName + ", " + type.Assembly.GetName().Name;
         }
-   
+
     }
 }

@@ -18,6 +18,7 @@ namespace NHibernate.Indexer.Mapping {
         public string Name              { get; private set; }
         public Attributes.Store Store   { get; set; }
         public Attributes.Index Index   { get; set; }
+        public float? Boost             { get; set; }
         public Analyzer Analyzer        { get; set; }
     }
 }

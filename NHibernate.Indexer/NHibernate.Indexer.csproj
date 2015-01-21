@@ -51,6 +51,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Attributes\AnalyzerAttribute.cs" />
+    <Compile Include="Attributes\BoostAttribute.cs" />
     <Compile Include="Attributes\DocumentIdAttribute.cs" />
     <Compile Include="Attributes\FieldAttribute.cs" />
     <Compile Include="Attributes\Index.cs" />

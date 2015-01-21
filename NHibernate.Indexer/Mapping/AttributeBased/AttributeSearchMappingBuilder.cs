@@ -100,7 +100,7 @@ namespace NHibernate.Indexer.Mapping.AttributeBased
         )
         {
             var analyzer = GetAnalyzer(member) ?? parentAnalyzer;
-
+            var boost = GetBoost(member);
             var getter = GetGetterFast(documentMapping.MappedClass, member);
 
             var documentIdAttribute = AttributeUtil.GetAttribute<DocumentIdAttribute>(member);
@@ -112,7 +112,7 @@ namespace NHibernate.Indexer.Mapping.AttributeBased
                 {
                     documentMapping.DocumentId = new DocumentIdMapping(
                         documentIdName, member.Name, getter
-                    );
+                    ) { Boost = boost };
                 }
                 else
                 {
@@ -123,7 +123,8 @@ namespace NHibernate.Indexer.Mapping.AttributeBased
                     )
                     {
                         Store = Attributes.Store.Yes,
-                        Index = Attributes.Index.UnTokenized
+                        Index = Attributes.Index.UnTokenized,
+                        Boost = boost
                     });
                 }
             }
@@ -141,7 +142,8 @@ namespace NHibernate.Indexer.Mapping.AttributeBased
                     {
                         Store = fieldAttribute.Store,
                         Index = fieldAttribute.Index,
-                        Analyzer = fieldAnalyzer
+                        Analyzer = fieldAnalyzer,
+                        Boost = boost
                     };
 
                     documentMapping.Fields.Add(field);
@@ -227,6 +229,18 @@ namespace NHibernate.Indexer.Mapping.AttributeBased
         {
             PropertyInfo info = member as PropertyInfo;
             return info != null ? info.PropertyType : ((FieldInfo)member).FieldType;
+        }
+
+        private float? GetBoost(ICustomAttributeProvider member)
+        {
+            if (member == null)
+                return null;
+
+            var boost = AttributeUtil.GetAttribute<BoostAttribute>(member);
+            if (boost == null)
+                return null;
+
+            return boost.Value;
         }
     }
 }

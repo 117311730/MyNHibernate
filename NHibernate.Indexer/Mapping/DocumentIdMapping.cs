@@ -28,5 +28,6 @@ namespace NHibernate.Indexer.Mapping
 
         public string Name { get; private set; }
         public string PropertyName { get; private set; }
+        public float? Boost { get; set; }
     }
 }

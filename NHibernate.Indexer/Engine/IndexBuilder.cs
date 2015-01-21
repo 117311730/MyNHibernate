@@ -114,6 +114,7 @@ namespace NHibernate.Indexer.Engine
             foreach (var item in list)
             {
                 Document document = doc.GetDocument(item);
+                write.DeleteDocuments(doc.GetTerm(item));
                 write.AddDocument(document);
             }
 
