@@ -60,6 +60,7 @@
     <Compile Include="Engine\DocumentBuilder.cs" />
     <Compile Include="Engine\IIndexBuilder.cs" />
     <Compile Include="Engine\IndexBuilder.cs" />
+    <Compile Include="Engine\MappingLoader.cs" />
     <Compile Include="Environment.cs" />
     <Compile Include="Mapping\AttributeBased\AttributeSearchMapping.cs" />
     <Compile Include="Mapping\AttributeBased\AttributeSearchMappingBuilder.cs" />

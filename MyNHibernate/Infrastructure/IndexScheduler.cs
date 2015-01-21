@@ -41,7 +41,7 @@ namespace MyNHibernate.Infrastructure
                 .WithIdentity("trigger1", "group1")
                 .StartNow()
                 .WithSimpleSchedule(x => x
-                    .WithIntervalInSeconds(1800)
+                    .WithIntervalInSeconds(10)
                     .RepeatForever())
                 .Build();
 
