@@ -1,5 +1,3 @@
-using System;
-using System.Collections.Generic;
 using NHibernate.Properties;
 
 namespace NHibernate.Indexer.Mapping

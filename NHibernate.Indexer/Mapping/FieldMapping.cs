@@ -1,5 +1,3 @@
-using System;
-using System.Collections.Generic;
 
 using Lucene.Net.Analysis;
 using NHibernate.Properties;

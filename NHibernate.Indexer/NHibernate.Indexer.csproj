@@ -58,10 +58,13 @@
     <Compile Include="Attributes\Indexed.cs" />
     <Compile Include="Attributes\Store.cs" />
     <Compile Include="Engine\DocumentBuilder.cs" />
-    <Compile Include="Engine\IIndexBuilder.cs" />
+    <Compile Include="Engine\FSDirectoryProvider.cs" />
+    <Compile Include="Engine\Searcher.cs" />
+    <Compile Include="IIndexBuilder.cs" />
     <Compile Include="Engine\IndexBuilder.cs" />
     <Compile Include="Engine\MappingLoader.cs" />
     <Compile Include="Environment.cs" />
+    <Compile Include="IFullTextSession.cs" />
     <Compile Include="Mapping\AttributeBased\AttributeSearchMapping.cs" />
     <Compile Include="Mapping\AttributeBased\AttributeSearchMappingBuilder.cs" />
     <Compile Include="Mapping\AttributeBased\AttributeUtil.cs" />
@@ -74,6 +77,7 @@
     <Compile Include="Indexer.cs" />
     <Compile Include="IndexException.cs" />
     <Compile Include="Search.cs" />
+    <Compile Include="SearchException.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

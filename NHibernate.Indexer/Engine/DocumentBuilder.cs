@@ -38,6 +38,11 @@ namespace NHibernate.Indexer.Engine
             get { return mappedSubclasses; }
         }
 
+        public DocumentMapping ClassMapping
+        {
+            get { return rootClassMapping; }
+        }
+
         public DocumentIdMapping DocumentId
         {
             get { return rootClassMapping.DocumentId; }

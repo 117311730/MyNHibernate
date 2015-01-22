@@ -1,8 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using Lucene.Net.Analysis;
 using Lucene.Net.Analysis.Standard;
 using NHibernate.Cfg;
@@ -77,7 +74,7 @@ namespace NHibernate.Indexer.Engine
             {
                 classMapping.Analyzer = analyzer;
                 DocumentBuilder documentBuilder = new DocumentBuilder(classMapping);
-                documentBuilders[classMapping.IndexName] = documentBuilder;
+                documentBuilders[classMapping.MappedClass.Name] = documentBuilder;
             }
         }
     }

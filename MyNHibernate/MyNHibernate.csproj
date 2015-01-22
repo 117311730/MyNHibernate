@@ -180,8 +180,9 @@
     <Compile Include="Infrastructure\HttpContextSessionContainer.cs" />
     <Compile Include="Infrastructure\IndexScheduler.cs" />
     <Compile Include="Infrastructure\ISessionContainer.cs" />
-    <Compile Include="Infrastructure\LuceneIndex.cs" />
+    <Compile Include="Infrastructure\LuceneIndexHelper.cs" />
     <Compile Include="Infrastructure\NHibernateUtility.cs" />
+    <Compile Include="Infrastructure\SearchHelper.cs" />
     <Compile Include="Models\City.cs" />
     <Compile Include="Models\District.cs" />
     <Compile Include="Models\LocalVendor.cs" />

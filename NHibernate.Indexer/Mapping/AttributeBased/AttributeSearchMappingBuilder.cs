@@ -5,7 +5,6 @@ using System.Reflection;
 using Lucene.Net.Analysis;
 using NHibernate.Properties;
 using NHibernate.Indexer.Attributes;
-using NHibernate.Indexer;
 
 namespace NHibernate.Indexer.Mapping.AttributeBased
 {
