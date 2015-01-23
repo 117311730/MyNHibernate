@@ -6,7 +6,7 @@ using NHibernate.Indexer.Attributes;
 
 namespace MyNHibernate.Models
 {
-    [Indexed(Index = "VendorProducts")]
+    [Indexed]
     public class VendorProducts
     {
         [DocumentId]

@@ -33,7 +33,7 @@ namespace NHibernate.Indexer.Mapping.AttributeBased
         {
             var documentMapping = new DocumentMapping(type)
             {
-                IndexName = AttributeUtil.GetAttribute<IndexedAttribute>(type).Index
+                IndexName = GetIndexName(type)
             };
 
             var context = new BuildContext
@@ -44,6 +44,12 @@ namespace NHibernate.Indexer.Mapping.AttributeBased
             BuildClass(documentMapping, true, string.Empty, context);
 
             return documentMapping;
+        }
+
+        private string GetIndexName(Type type)
+        {
+            var name = AttributeUtil.GetAttribute<IndexedAttribute>(type);
+            return string.IsNullOrEmpty(name.Index) ? type.Name : name.Index;
         }
 
         private void BuildClass(
