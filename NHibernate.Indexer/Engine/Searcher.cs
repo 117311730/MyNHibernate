@@ -16,8 +16,6 @@ namespace NHibernate.Search.Engine
     class Searcher : IFullTextSession
     {
         private readonly string BasePath;
-        private string IndexPath;
-
         private int TopN;
         private int StartRowIndex;
         private int PageSize;
@@ -54,8 +52,7 @@ namespace NHibernate.Search.Engine
             QueryString(keyWord);
             SetPager(topN, startRowIndex, pageSize);
             GetDocumentBuilder(typeof(TEntity));
-            IndexPath = Path.Combine(BasePath, DocumentBuilder.GetIndexName);
-            return List<TEntity>(Load());
+            return List<TEntity>(Load(Path.Combine(BasePath, DocumentBuilder.GetIndexName)));
         }
 
         private void GetDocumentBuilder(System.Type type)
@@ -67,10 +64,10 @@ namespace NHibernate.Search.Engine
             }
         }
 
-        private List<Document> Load()
+        private List<Document> Load(string indexPath)
         {
             var result = new List<Document>();
-            using (var provider = new FSDirectoryProvider().Initialize(IndexPath))
+            using (var provider = new FSDirectoryProvider().Initialize(indexPath))
             {
                 IndexSearcher searcher = new IndexSearcher(provider.Directory);
                 Query query = CreateQuery();
