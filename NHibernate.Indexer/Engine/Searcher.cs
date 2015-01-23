@@ -164,6 +164,8 @@ namespace NHibernate.Search.Engine
 
         public TEntity BindEntity<TEntity>(Document doc) where TEntity : new()
         {
+            // another way: build to json,then deserialize to oject
+            // what's that?
             TEntity entity = new TEntity();
             foreach (var item in entity.GetType().GetProperties())
             {
