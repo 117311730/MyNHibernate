@@ -15,7 +15,6 @@ namespace NHibernate.Search.Engine
 {
     class Searcher : IFullTextSession
     {
-        private ISession Session;
         private readonly string BasePath;
         private string IndexPath;
 
@@ -35,12 +34,6 @@ namespace NHibernate.Search.Engine
             MappingLoader.Init(cfg);
         }
 
-        public IFullTextSession SetSession(ISession session)
-        {
-            Session = session;
-            return this;
-        }
-
         public IEnumerable<TEntity> Search<TEntity>(string keyWord) where TEntity : new()
         {
             return Search<TEntity>(keyWord, 0);
@@ -51,13 +44,18 @@ namespace NHibernate.Search.Engine
             return Search<TEntity>(keyWord, topN, 0, 0);
         }
 
+        public IEnumerable<TEntity> Search<TEntity>(string keyWord, int startRowIndex, int pageSize) where TEntity : new()
+        {
+            return Search<TEntity>(keyWord, 0, startRowIndex, startRowIndex);
+        }
+
         public IEnumerable<TEntity> Search<TEntity>(string keyWord, int topN, int startRowIndex, int pageSize) where TEntity : new()
         {
             QueryString(keyWord);
             SetPager(topN, startRowIndex, pageSize);
             GetDocumentBuilder(typeof(TEntity));
             IndexPath = Path.Combine(BasePath, DocumentBuilder.GetIndexName);
-            return Load<TEntity>(List());
+            return List<TEntity>(Load());
         }
 
         private void GetDocumentBuilder(System.Type type)
@@ -69,32 +67,54 @@ namespace NHibernate.Search.Engine
             }
         }
 
-        private List<Document> List()
+        private List<Document> Load()
         {
             var result = new List<Document>();
             using (var provider = new FSDirectoryProvider().Initialize(IndexPath))
             {
                 IndexSearcher searcher = new IndexSearcher(provider.Directory);
                 Query query = CreateQuery();
-                ScoreDoc[] docs = null;
-                if (TopN > 0)
+                if (query != null)
                 {
-                    TopDocs res = searcher.Search(query, TopN);
-                    ResultSize = res.TotalHits;
-                    docs = res.ScoreDocs;
+                    ScoreDoc[] docs = null;
+                    if (TopN > 0)
+                    {
+                        TopDocs res = searcher.Search(query, TopN);
+                        ResultSize = res.TotalHits;
+                        docs = res.ScoreDocs;
+                    }
+                    else
+                    {
+                        TopScoreDocCollector collector = TopScoreDocCollector.Create(StartRowIndex * PageSize, true);
+                        searcher.Search(query, collector);
+                        ResultSize = collector.TotalHits;
+                        docs = collector.TopDocs(PageSize * (StartRowIndex - 1), PageSize).ScoreDocs;
+                    }
+                    for (int i = 0; i < docs.Length; ++i)
+                    {
+                        result.Add(searcher.Doc(docs[i].Doc));
+                    }
                 }
                 else
                 {
-                    TopScoreDocCollector collector = TopScoreDocCollector.Create(StartRowIndex * PageSize, true);
-                    searcher.Search(query, collector);
-                    ResultSize = collector.TotalHits;
-                    docs = collector.TopDocs(StartRowIndex, PageSize).ScoreDocs;
+                    int start = 0;
+                    int end = 0;
+                    if (TopN > 0)
+                    {
+                        end = TopN < searcher.MaxDoc ? TopN : searcher.MaxDoc;
+                    }
+                    else
+                    {
+                        start = PageSize * (StartRowIndex - 1);
+                        end = StartRowIndex * PageSize;
+                        end = end < searcher.MaxDoc ? end : searcher.MaxDoc;
+                    }
+                    for (; start < end; ++start)
+                    {
+                        result.Add(searcher.Doc(start));
+                    }
                 }
 
-                for (int i = 0; i < docs.Length; ++i)
-                {
-                    result.Add(searcher.Doc(docs[i].Doc));
-                }
                 searcher.Dispose();
             }
             return result;
@@ -107,24 +127,22 @@ namespace NHibernate.Search.Engine
                 .Select(i => i.Name)
                 .ToArray<string>();
             MultiFieldQueryParser queryParser = new MultiFieldQueryParser(Lucene.Net.Util.Version.LUCENE_30, fields, new StandardAnalyzer(Lucene.Net.Util.Version.LUCENE_30));
-
-            return queryParser.Parse(KeyWord);
+            try
+            {
+                return queryParser.Parse(KeyWord);
+            }
+            catch (ParseException ex)
+            {
+                return null;
+            }
         }
 
-        private IEnumerable<TEntity> Load<TEntity>(List<Document> docs)
+        private IEnumerable<TEntity> List<TEntity>(List<Document> docs) where TEntity : new()
         {
-            if (Session == null)
-            {
-                throw new SearchException("Session is null .");
-            }
-
             var list = new List<TEntity>();
             foreach (var item in docs)
             {
-                System.Type type = DocumentBuilder.DocumentId.Getter.ReturnType;
-                string idStr = item.Get(DocumentBuilder.DocumentId.Name);
-                object id = ConvertValue(type, idStr);
-                list.Add(Session.Load<TEntity>(id));
+                list.Add(BindEntity<TEntity>(item));
             }
             return list;
         }
@@ -138,14 +156,44 @@ namespace NHibernate.Search.Engine
 
         private void QueryString(string kw)
         {
-            KeyWord = kw.Trim();
+            if (string.IsNullOrEmpty(kw))
+                KeyWord = string.Empty;
+            else
+                KeyWord = kw.Trim();
         }
 
-        public static object ConvertValue(System.Type t, string value)
+        public TEntity BindEntity<TEntity>(Document doc) where TEntity : new()
         {
-            if (t.Name == typeof(int).Name)
-                return int.Parse(value);
-            return value;
+            TEntity entity = new TEntity();
+            foreach (var item in entity.GetType().GetProperties())
+            {
+                item.SetValue(entity, ChangeType(doc.Get(item.Name), item.PropertyType));
+            }
+            return entity;
+        }
+
+        static public object ChangeType(object value, System.Type type)
+        {
+            if (value == null && type.IsGenericType) return Activator.CreateInstance(type);
+            if (value == null) return null;
+            if (type == value.GetType()) return value;
+            if (type.IsEnum)
+            {
+                if (value is string)
+                    return Enum.Parse(type, value as string);
+                else
+                    return Enum.ToObject(type, value);
+            }
+            if (!type.IsInterface && type.IsGenericType)
+            {
+                System.Type innerType = type.GetGenericArguments()[0];
+                object innerValue = ChangeType(value, innerType);
+                return Activator.CreateInstance(type, new object[] { innerValue });
+            }
+            if (value is string && type == typeof(Guid)) return new Guid(value as string);
+            if (value is string && type == typeof(Version)) return new Version(value as string);
+            if (!(value is IConvertible)) return value;
+            return Convert.ChangeType(value, type);
         }
     }
 }

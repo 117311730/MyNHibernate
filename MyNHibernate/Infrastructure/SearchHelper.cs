@@ -8,11 +8,15 @@ namespace MyNHibernate.Infrastructure
 {
     public class SearchHelper
     {
+        private static IFullTextSession FullTextSession;
         public static IFullTextSession CreateSearcher()
         {
             var cfg = NHibernateUtility.GetNHConfiguration();
             var indexPath = LuceneIndexHelper.GetIndexPath();
-            return Search.CreateFullTextQuery(cfg, indexPath);
+            if (FullTextSession == null)
+                return Search.CreateFullTextQuery(cfg, indexPath);
+            else
+                return FullTextSession;
         }
     }
 }
