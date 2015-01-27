@@ -1,7 +1,7 @@
 # NHibernate Lucene.net auto index
 
-[For use]
-<code>
+## For use
+```c#
     [Indexed]
     public class VendorProducts
     {
@@ -25,4 +25,4 @@
         Indexer.CreateIndex(cfg, session, indexPath)
                .Build();
     }
-</code>
+```
