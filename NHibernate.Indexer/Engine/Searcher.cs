@@ -10,11 +10,14 @@ using Lucene.Net.QueryParsers;
 using Lucene.Net.Search;
 using NHibernate.Cfg;
 using NHibernate.Indexer.Engine;
+using NHibernate.Indexer.Util;
 
 namespace NHibernate.Search.Engine
 {
     class Searcher : IFullTextSession
     {
+        private static readonly IInternalLogger logger = LoggerProvider.LoggerFor(typeof(Searcher));
+
         private readonly string BasePath;
         private int TopN;
         private int StartRowIndex;
@@ -53,6 +56,17 @@ namespace NHibernate.Search.Engine
             SetPager(topN, startRowIndex, pageSize);
             GetDocumentBuilder(typeof(TEntity));
             return List<TEntity>(Load(Path.Combine(BasePath, DocumentBuilder.GetIndexName)));
+        }
+
+        public TEntity BindEntity<TEntity>(Document doc) where TEntity : new()
+        {
+            // another way: build to json,then deserialize to oject, what about that?
+            TEntity entity = new TEntity();
+            foreach (var item in entity.GetType().GetProperties())
+            {
+                item.SetValue(entity, Converter.ChangeType(doc.Get(item.Name), item.PropertyType));
+            }
+            return entity;
         }
 
         private void GetDocumentBuilder(System.Type type)
@@ -130,6 +144,7 @@ namespace NHibernate.Search.Engine
             }
             catch (ParseException ex)
             {
+                logger.ErrorFormat(" the string \"{0}\" can't parser.{1}",KeyWord,ex);
                 return null;
             }
         }
@@ -157,42 +172,6 @@ namespace NHibernate.Search.Engine
                 KeyWord = string.Empty;
             else
                 KeyWord = kw.Trim();
-        }
-
-        public TEntity BindEntity<TEntity>(Document doc) where TEntity : new()
-        {
-            // another way: build to json,then deserialize to oject
-            // what's that?
-            TEntity entity = new TEntity();
-            foreach (var item in entity.GetType().GetProperties())
-            {
-                item.SetValue(entity, ChangeType(doc.Get(item.Name), item.PropertyType));
-            }
-            return entity;
-        }
-
-        static public object ChangeType(object value, System.Type type)
-        {
-            if (value == null && type.IsGenericType) return Activator.CreateInstance(type);
-            if (value == null) return null;
-            if (type == value.GetType()) return value;
-            if (type.IsEnum)
-            {
-                if (value is string)
-                    return Enum.Parse(type, value as string);
-                else
-                    return Enum.ToObject(type, value);
-            }
-            if (!type.IsInterface && type.IsGenericType)
-            {
-                System.Type innerType = type.GetGenericArguments()[0];
-                object innerValue = ChangeType(value, innerType);
-                return Activator.CreateInstance(type, new object[] { innerValue });
-            }
-            if (value is string && type == typeof(Guid)) return new Guid(value as string);
-            if (value is string && type == typeof(Version)) return new Version(value as string);
-            if (!(value is IConvertible)) return value;
-            return Convert.ChangeType(value, type);
         }
     }
 }

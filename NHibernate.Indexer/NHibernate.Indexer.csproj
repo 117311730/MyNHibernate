@@ -78,6 +78,7 @@
     <Compile Include="IndexException.cs" />
     <Compile Include="Search.cs" />
     <Compile Include="SearchException.cs" />
+    <Compile Include="Util\Converter.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
