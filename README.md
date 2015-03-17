@@ -1,2 +1,2 @@
 # MyNHibernate
-MyNHibernate
+MyNHibernate blog
